@@ -3,6 +3,28 @@ Self-Driving Car Engineer Nanodegree Program
 
 ---
 
+## Summary
+This Repo contains a C++ implementation of a PID controller for Term 2 PID controller project. The PID controller will be used with the Udacity Simulator.
+
+## Project Discussion
+PID is a common control loop feedback controller used in control systems. P stands for Proportional, I for Integral and D for Derivative.
+
+P generates a steering correction proportional to the cross track error (cte). The higher the P value, the larger and more responsive the correction is. However, a too large P would result in overshooting and oscillation in steering control.
+
+I plays a role if there is a drift in the system. It generates a control signal that is proportional to the accumulation of the cte over time.
+
+D contributes a correction proportional to the changing rate of the cte. It helps dampening the overshooting caused by P. However, if D is overly large, it would induce too much damping and make the system hard to take prompt responses.
+
+The PID parameters were tuned through trial and error. The following values have been selected after many rounds of experimentation:
+
+Kp: 0.085
+Ki: 0.00
+Kd: 2.00
+
+The car was sucessfully able to drive around the track upto an average speed of 65mph.
+
+The throttle settings were also tweaked between two settings throttle_low = 0.5 and throttle_high = 0.9. When the absolute value of the steering angle is above certain threshold, the throttle is set to the lower value (throttle_low); When the steering angle is below the threshold, the throttle is switched to throttle_high to maximize acceleration in the forward direction.
+
 ## Dependencies
 
 * cmake >= 3.5
