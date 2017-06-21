@@ -12,14 +12,6 @@ constexpr double pi() { return M_PI; }
 double deg2rad(double x) { return x * pi() / 180; }
 double rad2deg(double x) { return x * 180 / pi(); }
 
-//Steering PID init values
-std::vector<double> p = {0.235,0.005,2.75};
-
-double max_steering_angle = 1.0;
-double cumulative_cte = 0.0;
-double avg_cte = 0.0;
-int steps = 0;
-
 // Checks if the SocketIO event has JSON data.
 // If there is data the JSON object in string format will be returned,
 // else the empty string "" will be returned.
@@ -42,7 +34,10 @@ int main()
 
   PID pid;
   // TODO: Initialize the pid variable.
-  pid.Init(p[0], p[1], p[2]);
+  double Kp = 0.085;
+  double Ki = 0.0;
+  double Kd = 2.0;
+  pid.Init(Kp, Ki, Kd);
 
   h.onMessage([&pid](uWS::WebSocket<uWS::SERVER> ws, char *data, size_t length, uWS::OpCode opCode) {
     // "42" at the start of the message means there's a websocket message event.
@@ -59,7 +54,6 @@ int main()
           double cte = std::stod(j[1]["cte"].get<std::string>());
           double speed = std::stod(j[1]["speed"].get<std::string>());
           double angle = std::stod(j[1]["steering_angle"].get<std::string>());
-          double throttle = std::stod(j[1]["throttle"].get<std::string>());
           double steer_value;
           /*
           * TODO: Calcuate steering value here, remember the steering value is
@@ -67,21 +61,22 @@ int main()
           * NOTE: Feel free to play around with the throttle and speed. Maybe use
           * another PID controller to control the speed!
           */
-          steps += 1;
-          cumulative_cte += cte;
-          avg_cte = cte / steps;
+          double throttle_value;
+          double steer_thre = 0.07;
+          double throttle_low = 0.5;
+          double throttle_high = 0.9;
 
           // update controller with new cte and calculate steer value
           pid.UpdateError(cte);
           steer_value = -pid.TotalError();
 
           // limit steer value within -1 and 1
-          if (steer_value > max_steering_angle) {
-            steer_value = max_steering_angle;
-          } else if (steer_value < -max_steering_angle) {
-            steer_value = -max_steering_angle;
-          }
+          if (steer_value > 1.0) steer_value = 1.0;
+          if (steer_value < -1.0) steer_value = -1.0;
 
+          // when steer value is within a threshold, use larger throttle
+          throttle_value = (fabs(steer_value) < steer_thre)? throttle_high:throttle_low;
+          
           // DEBUG
           std::cout << "CTE: " << cte << " Steering Value: " << steer_value << std::endl;
 
