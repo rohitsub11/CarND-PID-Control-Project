@@ -82,9 +82,6 @@ int main()
             steer_value = -max_steering_angle;
           }
 
-          // when steer value is within a threshold, use larger throttle
-          throttle_value = (fabs(steer_value) < steer_thre)? throttle_high:throttle_low;
-          
           // DEBUG
           std::cout << "CTE: " << cte << " Steering Value: " << steer_value << std::endl;
 
